@@ -63,13 +63,8 @@ real Model::binaryLogistic(int32_t target, bool label, real lr) {
   wo_->addRow(hidden_, target, alpha);
   */
 
-  if(args_->fobos){
-    grad_.addRowL2Fobos(*wo_, target, lr, diff, args_->l2);
-    wo_->addRowL2Fobos(hidden_, target, lr, diff, args_->l2);
-  } else {
-    grad_.addRowL2(*wo_, target, lr, diff, args_->l2);
-    wo_->addRowL2(hidden_, target, lr, diff, args_->l2);
-  }
+  grad_.addRowL2(*wo_, target, lr, diff, args_->l2);
+  wo_->addRowL2(hidden_, target, lr, diff, args_->l2);
 
   if (label) {
     return -log(score);
@@ -325,11 +320,9 @@ void Model::update(const std::vector<int32_t>& input, const std::vector<real>& i
   if (!args_->freezeVectors) {
     if (args_->model == model_name::sup) {
       grad_.mul(1.0 / values_sum);
-      //grad_.mul(1.0 / input.size());
     }
     for (auto it = 0; it < input.size(); ++it) {
       wi_->addRow(grad_, input[it], input_values[it]);
-      //wi_->addRow(grad_, input[it], 1.0);
     }
   }
 }

@@ -54,17 +54,8 @@ real LossLayer::binaryLogistic(int32_t target, real label, real lr, real l2, Mod
     real score = model_->sigmoid(model_->wo_->dotRow(model_->hidden_, shift + target));
     real diff = (label - score);
 
-    // Vanilla fastText update
-    //model_->grad_.addRow(*model_->wo_, shift + target, lr * diff / args_->ensemble);
-    //model_->wo_->addRow(model_->hidden_, shift + target, lr * diff);
-
-    if(args_->fobos){
-        model_->grad_.addRowL2Fobos(*model_->wo_, shift + target, lr, diff / args_->ensemble, l2);
-        model_->wo_->addRowL2Fobos(model_->hidden_, shift + target, lr, diff, l2);
-    } else {
-        model_->grad_.addRowL2(*model_->wo_, shift + target, lr, diff / args_->ensemble, l2);
-        model_->wo_->addRowL2(model_->hidden_, shift + target, lr, diff, l2);
-    }
+    model_->grad_.addRowL2(*model_->wo_, shift + target, lr, diff / args_->ensemble, l2);
+    model_->wo_->addRowL2(model_->hidden_, shift + target, lr, diff, l2);
 
     if (label) {
         return -model_->log(score);

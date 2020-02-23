@@ -83,7 +83,6 @@ Args::Args() {
   // Update args
   l2 = 0;
   lrDecay = 1.0; // linear decay;
-  fobos = false;
 
   // Ensemble args
   bagging = 1.0;
@@ -303,11 +302,8 @@ void Args::parseArgs(const std::vector<std::string>& args) {
         l2 = std::stof(args.at(ai + 1));
       } else if (args[ai] == "-lrDecay") {
         lrDecay= std::stof(args.at(ai + 1));
-      } else if (args[ai] == "-fobos") {
-        fobos = true;
-        ai--;
 
-      // Ensamble args
+      // Ensemble args
       } else if (args[ai] == "-bagging") {
         bagging = std::stof(args.at(ai + 1));
       } else if (args[ai] == "-ensemble") {
@@ -381,7 +377,6 @@ void Args::printTrainingHelp() {
     << "  -lrUpdateRate       change the rate of updates for the learning rate [" << lrUpdateRate << "]\n"
     << "  -lrDecay            learning rate decay parameter [" << lrDecay << "]\n"
     << "  -l2                 L2 regularization [" << l2 << "]\n"
-    << "  -fobos              use FOBOS update [" << boolToString(fobos) << "]\n"
     << "  -dim                size of word vectors [" << dim << "]\n"
     << "  -ws                 size of the context window [" << ws << "]\n"
     << "  -epoch              number of epochs [" << epoch << "]\n"
@@ -426,11 +421,8 @@ void Args::printInfo(){
     if(treeType == tree_type_name::kmeans) std::cerr << ", kMeansEps: " << kMeansEps << ", kMeansCentThr: " << kMeansCentThr;
     std::cerr << std::endl;
   }
-  if(ensemble > 1) std::cerr << "  Ensemble: " << ensemble << std::endl; //", bagging ratio: " << bagging << std::endl;
-  std::cerr << "  Update: ";
-  if(fobos) std::cerr << "FOBOS";
-  else std::cerr << "SGD";
-  std::cerr << ", lr: " << lr << ", lrDecay: " << lrDecay << ", L2: " << l2 << ", dims: " << dim << ", epochs: " << epoch << ", neg: " << neg << std::endl;
+  if(ensemble > 1) std::cerr << "  Ensemble: " << ensemble << std::endl;
+  std::cerr << "  Lr: " << lr << ", lrDecay: " << lrDecay << ", L2: " << l2 << ", dims: " << dim << ", epochs: " << epoch << ", neg: " << neg << std::endl;
 }
 
 void Args::save(std::ostream& out) {
@@ -514,7 +506,6 @@ void Args::dump(std::ostream& out) const {
   out << "lrUpdateRate" << " " << lrUpdateRate << std::endl;
   out << "t" << " " << t << std::endl;
   out << "l2" << " " << l2 << std::endl;
-  out << "fobos" << " " << fobos << std::endl;
   out << "ensemble" << " " << ensemble << std::endl;
   if(loss == loss_name::plt) {
     out << "treeType" << " " << treeTypeToString(treeType) << std::endl;

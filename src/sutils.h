@@ -2,8 +2,8 @@
  * Copyright (c) 2018 by Marek Wydmuch
  * All rights reserved.
  *
- * Code from napkinXML
- * https://github.com/mwydmuch/napkinXML
+ * Code from napkinXC
+ * https://github.com/mwydmuch/napkinXC
  */
 
 #pragma once
@@ -24,13 +24,6 @@ struct Feature {
     int index;
     real value;
 
-
-    // In extremeText we do not need this kind of sorting
-    /*
-    bool operator<(const Feature& r) const { return value < r.value; }
-    bool operator>(const Feature& r) const { return value > r.value; }
-    */
-
     bool operator<(const Feature& r) const { return index < r.index; }
     bool operator>(const Feature& r) const { return index > r.index; }
 
@@ -41,33 +34,6 @@ struct Feature {
 };
 
 // Sparse utils
-
-template <typename T, typename U>
-inline T argMax(const std::unordered_map<T, U>& map){
-    auto pMax = std::max_element(map.begin(), map.end(),
-                                 [](const std::pair<T, U>& p1, const std::pair<T, U>& p2)
-                                 { return p1.second < p2.second; });
-    return pMax.first;
-}
-
-template <typename T, typename U>
-inline T argMin(const std::unordered_map<T, U>& map){
-    auto pMin = std::min_element(map.begin(), map.end(),
-                                 [](const std::pair<T, U>& p1, const std::pair<T, U>& p2)
-                                 { return p1.second < p2.second; });
-    return pMin.first;
-}
-
-
-template <typename T>
-inline size_t argMax(const std::vector<T>& vector){
-    return std::distance(vector.begin(), std::max_element(vector.begin(), vector.end()));
-}
-
-template <typename T>
-inline size_t argMin(const std::vector<T>& vector){
-    return std::distance(vector.begin(), std::min_element(vector.begin(), vector.end()));
-}
 
 // Sparse vector dot dense vector
 template <typename T>

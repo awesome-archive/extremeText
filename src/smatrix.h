@@ -2,8 +2,8 @@
  * Copyright (c) 2018 by Marek Wydmuch
  * All rights reserved.
  *
- * Code from napkinXML
- * https://github.com/mwydmuch/napkinXML
+ * Code from napkinXC
+ * https://github.com/mwydmuch/napkinXC
  */
 
 #pragma once
