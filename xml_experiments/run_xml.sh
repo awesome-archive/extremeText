@@ -12,18 +12,18 @@ mkdir -p models
 SCRIPT_DIR=$( dirname "${BASH_SOURCE[0]}" )
 BIN=${SCRIPT_DIR}/../extremetext
 
-if [ ! -e datasets4fastText ]; then
+if [[ ! -e datasets4fastText ]]; then
     git clone https://github.com/mwydmuch/datasets4fastText.git
     cd datasets4fastText
     git checkout with_features_values
     cd ..
 fi
 
-if [ ! -e $FILES_PREFIX ]; then
+if [[ ! -e $FILES_PREFIX ]]; then
     bash datasets4fastText/xml_repo/get_${DATASET_NAME}.sh
 fi
 
-if [ ! -e ${BIN} ]; then
+if [[ ! -e ${BIN} ]]; then
     cd ${SCRIPT_DIR}/..
     make -j
     cd -
@@ -32,17 +32,14 @@ fi
 TRAIN=${FILES_PREFIX}/${FILES_PREFIX}_train
 TEST=${FILES_PREFIX}/${FILES_PREFIX}_test
 
-if [ ! -e $TRAIN ]; then
-    TRAIN=${FILES_PREFIX}/${FILES_PREFIX}_train0
-    TEST=${FILES_PREFIX}/${FILES_PREFIX}_test0
-fi
-
 # Model training
 mkdir -p models
 MODEL="models/${FILES_PREFIX}_$(echo $PARAMS | tr ' ' '_')"
-
-if [ ! -e ${MODEL}.bin ]; then
+LOCK="models/.lock_${FILES_PREFIX}_$(echo $PARAMS | tr ' ' '_')"
+if [[ ! -e ${MODEL}.bin ]] || [[ -e $LOCK ]]; then
+    touch $LOCK
     time $BIN supervised -input $TRAIN -output $MODEL -loss plt $PARAMS -thread $THREADS
+    rm -f $LOCK
 fi
 
 # Test model
