@@ -167,6 +167,8 @@ void Args::parseArgs(const std::vector<std::string>& args) {
         input = std::string(args.at(ai + 1));
       } else if (args[ai] == "-output") {
         output = std::string(args.at(ai + 1));
+      } else if (args[ai] == "-seed") {
+        seed = std::stoi(args.at(ai + 1));
       } else if (args[ai] == "-lr") {
         lr = std::stof(args.at(ai + 1));
       } else if (args[ai] == "-lrUpdateRate") {
@@ -423,6 +425,7 @@ void Args::printInfo(){
   }
   if(ensemble > 1) std::cerr << "  Ensemble: " << ensemble << std::endl;
   std::cerr << "  Lr: " << lr << ", lrDecay: " << lrDecay << ", L2: " << l2 << ", dims: " << dim << ", epochs: " << epoch << ", neg: " << neg << std::endl;
+  std::cerr << "  Seed: " << seed << std::endl;
 }
 
 void Args::save(std::ostream& out) {
