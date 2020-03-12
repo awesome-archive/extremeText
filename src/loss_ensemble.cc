@@ -29,7 +29,7 @@ void Ensemble::setup(std::shared_ptr<Dictionary> dict, uint32_t seed){
     assert(args_->ensemble > 0);
     for(auto i = 0; i < args_->ensemble; ++i){
         auto base = lossLayerFactory(args_, args_->loss);
-        base->setup(dict, seed * (sizeSum + 1));
+        base->setup(dict, seed + i);
         base->setShift(sizeSum);
         sizeSum += base->getSize();
         baseLayers.push_back(base);

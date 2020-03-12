@@ -51,18 +51,18 @@ int32_t Dictionary::find(const std::string& w, uint32_t h) const {
 
 int32_t Dictionary::add(const std::string& w, int32_t c) {
   int32_t h = find(w);
-  ntokens_++;
+  ntokens_ += c;
   if (word2int_[h] == -1) {
     entry e;
     e.word = w;
-    //e.count = 1;
     e.count = c;
     e.doc_count = 0;
     e.type = getType(w);
     words_.push_back(e);
     word2int_[h] = size_++;
+    if (e.type == entry_type::word) nwords_++;
+    else if (e.type == entry_type::label) nlabels_++;
   } else {
-    //words_[word2int_[h]].count++;
     words_[word2int_[h]].count += c;
   }
 
@@ -344,7 +344,8 @@ void Dictionary::addWordNgrams(std::vector<int32_t>& line,
 void Dictionary::addSubwords(std::vector<int32_t>& line,
                              const std::string& token,
                              std::vector<real>& line_values,
-                             const real& value,
+                             const real value,
+                             std::vector<int32_t>& doc_counts,
                              int32_t wid) const {
   if (wid < 0) { // out of vocab
     if (token != EOS) {
@@ -354,26 +355,14 @@ void Dictionary::addSubwords(std::vector<int32_t>& line,
     if (args_->maxn <= 0) { // in vocab w/o subwords
       line.push_back(wid);
       line_values.push_back(value);
-    } else { // in vocab w/ subwords
-      const std::vector<int32_t>& ngrams = getSubwords(wid);
-      line.insert(line.end(), ngrams.cbegin(), ngrams.cend());
-      for(auto it = 0; it < ngrams.size(); ++it) line_values.push_back(value);
-    }
-  }
-}
-
-void Dictionary::addSubwordsTfIdf(std::vector<int32_t>& line,
-                             const std::string& token,
-                             std::vector<int32_t>& doc_counts,
-                             int32_t wid) const {
-  if (wid >= 0) {
-    if (args_->maxn <= 0) { // in vocab w/o subwords
-      line.push_back(wid);
       doc_counts.push_back(words_[wid].doc_count);
     } else { // in vocab w/ subwords
       const std::vector<int32_t>& ngrams = getSubwords(wid);
       line.insert(line.end(), ngrams.cbegin(), ngrams.cend());
-      for(auto it = 0; it < ngrams.size(); ++it) doc_counts.push_back(words_[wid].doc_count);
+      for(auto it = 0; it < ngrams.size(); ++it) {
+        line_values.push_back(value);
+        doc_counts.push_back(words_[wid].doc_count);
+      }
     }
   }
 }
@@ -424,10 +413,8 @@ real Dictionary::getLine(std::istream& in,
   words.clear();
   labels.clear();
   words_values.clear();
-  tags.clear();
-
-  // For TF-IDF
-  std::vector<int32_t> doc_counts;
+  tags.clear(); // Document tags
+  std::vector<int32_t> doc_counts; // For TF-IDF
 
   while (readWord(in, token, value)) {
     if(token == args_->weight){
@@ -438,7 +425,6 @@ real Dictionary::getLine(std::istream& in,
       tags.push_back(token);
       continue;
     }
-
     if(token == EOS && !args_->addEosToken) break;
 
     uint32_t h = utils::hash(token);
@@ -447,13 +433,8 @@ real Dictionary::getLine(std::istream& in,
 
     ntokens++;
     if (type == entry_type::word) {
-      if (args_->tfidfWeights) {
-        addSubwordsTfIdf(words, token, doc_counts, wid);
-        // TODO: support for word hashes for TF-IDF
-      } else {
-        addSubwords(words, token, words_values, value, wid);
-        word_hashes.push_back(h);
-      }
+      addSubwords(words, token, words_values, value, doc_counts, wid);
+      word_hashes.push_back(h);
     } else if (type == entry_type::label && wid >= 0) {
       labels.push_back(wid - nwords_);
     }
@@ -461,37 +442,27 @@ real Dictionary::getLine(std::istream& in,
     if (token == EOS) break;
   }
 
-  //real values_sum = 0;
   if(args_->tfidfWeights){
     assert(words.size() == doc_counts.size());
-    int32_t nwords = words.size();
+    int32_t nwords = 0;
     std::unordered_map<int32_t, std::pair<int32_t, int32_t>> counts;
     for(size_t i = 0; i < words.size(); ++i){
       auto word_count = counts.find(words[i]);
       if(word_count == counts.end()) counts[words[i]] = std::pair<int32_t, int32_t>(static_cast<int32_t>(words_values[i]), doc_counts[i]);
       else word_count->second.first += words_values[i];
-      //counts[words[i]].first +=
-      //counts[words[i]].second = doc_counts[i];
+      nwords += words_values[i];
     }
 
     words.clear();
+    words_values.clear();
     for(auto it : counts){
       words.push_back(it.first);
-      real tfidf = (static_cast<real>(it.second.first) / nwords) * std::log(static_cast<real>(ndocs_) / it.second.second);
+      real tfidf = (static_cast<real>(it.second.first) / nwords) * std::log(static_cast<real>(ndocs_) / (1 + it.second.second));
       words_values.push_back(tfidf);
-      //values_sum += tfidf;
     }
   }
-  //else {
-    //for(auto &it : words_values) values_sum += it;
-  //}
-  //for(auto &it : words_values) it /= values_sum / words.size();
 
-//  if (words_values.size() != 0)
-//    unitNorm(words_values.data(), words_values.size() - (args_->addEosToken ? 1 : 0));
-
-
-  // TODO: support for wordNgrams for TF-IDF
+  // TODO: support for wordNgrams for TF-IDF and wordsWeights
   if(!args_->tfidfWeights && !args_->wordsWeights) {
     addWordNgrams(words, word_hashes, args_->wordNgrams);
     while (words.size() != words_values.size())
@@ -645,6 +616,14 @@ void Dictionary::dump(std::ostream& out) const {
     }
     out << it.word << " " << it.count << " " << entryType << std::endl;
   }
+}
+
+std::vector<std::string> Dictionary::getWords(entry_type type) const {
+  std::vector<std::string> words;
+  for (auto& w : words_) {
+    if (w.type == type) words.push_back(w.word);
+  }
+  return words;
 }
 
 }

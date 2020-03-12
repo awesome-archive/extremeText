@@ -14,6 +14,8 @@
 #include <thread>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
+#include <iostream>
 
 namespace fasttext {
 
@@ -38,6 +40,18 @@ namespace utils {
       if (leadingZeros != 0) ss << std::setw(leadingZeros) << std::setfill('0');
       ss << number;
       return ss.str();
+  }
+
+  void printProgress(int64_t start, int64_t value, int64_t end, std::ostream& log_stream){
+    int64_t progress = value - start;
+    int64_t range = end - start;
+    float progressProc = static_cast<float>(progress) / range * 100;
+    if(progress % std::max((int64_t)1, range / 1000) == 0){
+      log_stream << std::fixed;
+      log_stream << "Progress: ";
+      log_stream << std::setprecision(1) << std::setw(5) << progressProc << "%\r";
+      log_stream << std::flush;
+    }
   }
 
   void printProgress(float progress, std::ostream& log_stream) {

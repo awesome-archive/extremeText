@@ -27,10 +27,6 @@ void Matrix::zero() {
   std::fill(data_.begin(), data_.end(), 0.0);
 }
 
-void Matrix::zero(int64_t i) {
-  std::fill(&data_[i * n_], &data_[i * n_ + n_], 0.0);
-}
-
 void Matrix::uniform(real a) {
   std::minstd_rand rng(1);
   std::uniform_real_distribution<> uniform(-a, a);
@@ -62,16 +58,6 @@ void Matrix::addRow(const Vector& vec, int64_t i, real a) {
   }
 }
 
-void Matrix::addRowL1(const Vector& vec, int64_t i, real a, real l1) {
-  assert(i >= 0);
-  assert(i < m_);
-  assert(vec.size() == n_);
-  for (int64_t j = 0; j < n_; j++) {
-    data_[i * n_ + j] += (a - l1/n_ * data_[i * n_ + j]) * vec[j];
-  }
-}
-
-
 void Matrix::addRowL2(const Vector& vec, int64_t i, real lr, real a, real lambda) {
 
   assert(i >= 0);
@@ -80,36 +66,6 @@ void Matrix::addRowL2(const Vector& vec, int64_t i, real lr, real a, real lambda
 
   for (int64_t j = 0; j < n_; j++) {
     data_[i * n_ + j] += lr * (a * vec[j] - lambda * data_[i * n_ + j]);
-  }
-}
-
-void Matrix::addRowL2Fobos(const Vector& vec, int64_t i, real lr, real a, real lambda) {
-
-  assert(i >= 0);
-  assert(i < m_);
-  assert(vec.size() == n_);
-
-  double mul = 1.0 / (1.0+lambda*lr);
-
-  for (int64_t j = 0; j < n_; j++) {
-    data_[i * n_ + j] += lr * (a * vec[j]);
-    data_[i * n_ + j] *= mul;
-  }
-}
-
-
-void Matrix::multiplyRow(const Vector& nums, int64_t ib, int64_t ie) {
-  if (ie == -1) {
-    ie = m_;
-  }
-  assert(ie <= nums.size());
-  for (auto i = ib; i < ie; i++) {
-    real n = nums[i - ib];
-    if (n != 0) {
-      for (auto j = 0; j < n_; j++) {
-        at(i, j) *= n;
-      }
-    }
   }
 }
 

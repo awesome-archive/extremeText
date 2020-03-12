@@ -20,8 +20,8 @@
 namespace fasttext {
 
 enum class model_name : int { cbow = 1, sg, sup };
-enum class loss_name : int { hs = 1, ns, softmax, plt, sigmoid};
-enum class tree_type_name : int { huffman = 1, complete, kmeans, custom};
+enum class loss_name : int { hs = 1, ns, softmax, plt, sigmoid };
+enum class tree_type_name : int { huffman = 1, complete, kmeans, custom };
 
 class Args {
   protected:
@@ -94,8 +94,8 @@ class Args {
     real kMeansSample;
 
     // Update args
-    bool fobos;
     real l2;
+    real lrDecay;
 
     // Ensemble args
     int ensemble;

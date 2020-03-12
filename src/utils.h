@@ -30,6 +30,7 @@ namespace utils {
   void seek(std::ifstream&, int64_t);
   size_t cpuCount();
   std::string itos(int32_t, int32_t = 0);
+  void printProgress(int64_t start, int64_t value, int64_t end, std::ostream& log_stream);
   void printProgress(float progress, std::ostream& log_stream);
 
   uint32_t hash(const char*, size_t size);

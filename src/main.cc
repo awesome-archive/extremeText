@@ -25,7 +25,7 @@ void printUsage() {
     << "  test                    evaluate a supervised classifier\n"
     << "  predict                 predict most likely labels\n"
     << "  predict-prob            predict most likely labels with probabilities\n"
-    << "  get-prob                predict probabilities for given labels"
+    << "  get-prob                predict probabilities for given labels\n"
     << "  skipgram                train a skipgram model\n"
     << "  cbow                    train a cbow model\n"
     << "  print-word-vectors      print word vectors given a trained model\n"
@@ -189,7 +189,7 @@ void test(const std::vector<std::string>& args) {
     }
     if(thread == 1) result = fasttext.test(ifs, k, threshold);
     ifs.close();
-    if(thread > 1) result = fasttext.startTestThreads(infile, k, thread, threshold);
+    if(thread > 1) result = fasttext.testInThreads(infile, k, thread, threshold);
   }
   std::cout << "Number of documents: " << std::get<0>(result) << std::endl;
   std::cout << std::setprecision(5);
@@ -232,7 +232,7 @@ void predict(const std::vector<std::string>& args) {
     }
     if(thread == 1) fasttext.predict(ifs, k, print_prob, threshold);
     ifs.close();
-    if(thread > 1) fasttext.startPredictThreads(infile, outfile, thread, k, print_prob, threshold);
+    if(thread > 1) fasttext.predictInThreads(infile, outfile, thread, k, print_prob, threshold);
   }
 
   exit(0);
@@ -268,7 +268,7 @@ void getProb(const std::vector<std::string>& args){
     }
     if(thread == 1) fasttext.getProb(ifs, threshold);
     ifs.close();
-    if(thread > 1) fasttext.startGetProbThreads(infile, outfile, thread, threshold);
+    if(thread > 1) fasttext.getProbInThreads(infile, outfile, thread, threshold);
   }
 
   exit(0);

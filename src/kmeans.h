@@ -2,8 +2,8 @@
  * Copyright (c) 2018 by Marek Wydmuch
  * All rights reserved.
  *
- * Code from napkinXML
- * https://github.com/mwydmuch/napkinXML
+ * Code from napkinXC
+ * https://github.com/mwydmuch/napkinXC
  */
 
 #pragma once
@@ -26,8 +26,9 @@ struct Assignation{
 struct Distances{
     int index;
     std::vector<Feature> values;
+    std::vector<Feature> differences;
 
-    bool operator<(const Distances &r) const { return values[0].value < r.values[0].value; }
+    bool operator<(const Distances& r) const { return differences[0].value < r.differences[0].value; }
 };
 
 // Partition is returned via reference, calculated for cosine distance
