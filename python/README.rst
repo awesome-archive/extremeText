@@ -12,7 +12,7 @@ hundreds of thousands and millions of labels.
    classification with top-down hierarchical clustering (k-means) for
    tree building,
 -  sigmoid loss for multi-label classification,
--  L2 regularization and FOBOS update for all losses,
+-  L2 regularization update for all losses,
 -  ensemble of loss layers with bagging,
 -  calculation of hidden (document) vector as a weighted average of the
    word vectors,

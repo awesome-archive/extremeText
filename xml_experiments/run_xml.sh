@@ -3,9 +3,7 @@
 DATASET_NAME=$1
 FILES_PREFIX=$2
 PARAMS=$3
-QUANTIZE_PARAMS=$4
-
-THREADS=8
+#QUANTIZE_PARAMS=$4
 
 mkdir -p models
 
@@ -38,7 +36,7 @@ MODEL="models/${FILES_PREFIX}_$(echo $PARAMS | tr ' ' '_')"
 LOCK="models/.lock_${FILES_PREFIX}_$(echo $PARAMS | tr ' ' '_')"
 if [[ ! -e ${MODEL}.bin ]] || [[ -e $LOCK ]]; then
     touch $LOCK
-    time $BIN supervised -input $TRAIN -output $MODEL -loss plt $PARAMS -thread $THREADS
+    time $BIN supervised -input $TRAIN -output $MODEL -loss plt $PARAMS
     rm -f $LOCK
 fi
 

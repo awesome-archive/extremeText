@@ -425,7 +425,7 @@ void Args::printInfo(){
   }
   if(ensemble > 1) std::cerr << "  Ensemble: " << ensemble << std::endl;
   std::cerr << "  Lr: " << lr << ", lrDecay: " << lrDecay << ", L2: " << l2 << ", dims: " << dim << ", epochs: " << epoch << ", neg: " << neg << std::endl;
-  std::cerr << "  Seed: " << seed << std::endl;
+  if(train) std::cerr << "  Seed: " << seed << std::endl;
 }
 
 void Args::save(std::ostream& out) {
